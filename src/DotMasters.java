@@ -92,13 +92,15 @@ public class DotMasters extends JFrame implements MouseListener,
 		
 		circles.get(currPoint)[currFrame + 1] = new Point(MousePosition);
 
-		if (currFrame == time*fps/1000 - 2 ||new Rectangle(target.x, target.y, targetSize, targetSize).contains(circles.get(currPoint)[currFrame])){
+		if (new Rectangle(target.x, target.y, targetSize, targetSize).contains(circles.get(currPoint)[currFrame])){
 			this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 			currFrame = 0;
 			circles.add(new Point[time*fps/1000]);
 			currPoint++;
 			MousePosition = null;
-		} else {
+		} else if (currFrame == time*fps/1000 - 2){
+			gameover = true;
+		}else {
 			currFrame++;
 		}
 	}
