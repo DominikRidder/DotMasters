@@ -38,6 +38,7 @@ public class DotMasters extends JFrame implements MouseListener,
 	private BufferedImage image;
 	private Graphics2D buffer;
 	private Point target;
+	private Font overtext = new Font("newfont", Font.BOLD, 100);
 	
 	private boolean gameover;
 	
@@ -63,6 +64,7 @@ public class DotMasters extends JFrame implements MouseListener,
 
 		circles.add(new Point[time*fps/1000]);
 
+		this.setBackground(Color.ORANGE);
 		this.pack();
 		setVisible(true);
 		image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_3BYTE_BGR);
@@ -74,6 +76,17 @@ public class DotMasters extends JFrame implements MouseListener,
 			@Override
 			public void run() {
 				GameLoop();
+
+			}
+
+		}, 0, 1000 / fps);
+		
+		Timer t2 = new Timer("DotMasters");
+		t2.schedule(new TimerTask() {
+
+			@Override
+			public void run() {
+				repaint();
 
 			}
 
@@ -91,14 +104,19 @@ public class DotMasters extends JFrame implements MouseListener,
 		}
 		
 		circles.get(currPoint)[currFrame + 1] = new Point(MousePosition);
-
+		
+		try{
 		if (new Rectangle(target.x, target.y, targetSize, targetSize).contains(circles.get(currPoint)[currFrame])){
 			this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 			currFrame = 0;
 			circles.add(new Point[time*fps/1000]);
 			currPoint++;
 			MousePosition = null;
-		} else if (currFrame == time*fps/1000 - 2){
+			return;
+		}}catch(NullPointerException e){
+			
+		}
+		if (currFrame == time*fps/1000 - 2){
 			gameover = true;
 		}else {
 			currFrame++;
@@ -127,7 +145,7 @@ public class DotMasters extends JFrame implements MouseListener,
 	public void paint(Graphics g) {
 		super.paint(g);
 		Graphics2D g2d = (Graphics2D) g;
-
+		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
 		
 		g2d.setColor(Color.ORANGE);
 		g2d.fillRect(0, 0, this.getWidth(), this.getHeight());
@@ -152,11 +170,11 @@ public class DotMasters extends JFrame implements MouseListener,
 		
 		if (gameover){
 			g2d.setColor(Color.RED);
-			g2d.setFont(new Font("newfont", Font.BOLD, 100));
+			g2d.setFont(overtext);
 			g2d.drawString("GAME OVER", 200, 200);
 		}
 		
-		repaint();
+//		repaint();
 	}
 
 	@Override
@@ -199,6 +217,14 @@ public class DotMasters extends JFrame implements MouseListener,
 			}
 			
 			circles.get(currPoint)[0] = MousePosition;
+		}
+		if (gameover){
+			gameover = false;
+			currPoint = 0;
+			currFrame = 0;
+			circles = new ArrayList<Point[]>();
+			circles.add(new Point[time*fps/1000]);
+			MousePosition = null;
 		}
 	}
 
